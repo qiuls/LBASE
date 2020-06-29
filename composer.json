@@ -1,0 +1,18 @@
+{
+    "name": "vagrant/master",
+    "authors": [
+        {
+            "name": "John Smith",
+            "email": "john@example.com"
+        }
+    ],
+    "require": {
+        "jdorn/sql-formatter": "^1.2",
+        "symfony/var-dumper": "^5.1"
+    },
+    "autoload": {
+        "files": [
+
+        ]
+    }
+}

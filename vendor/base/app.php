@@ -46,21 +46,33 @@ class App
         register_shutdown_function("cache_shutdown_error");
         try {
             $route = self::getRoute();
+
             $className = $route->getclassName();
             $methodName = $route->getmethodName();
-            $res = Ioc::make($className, $methodName);
-            if(\Base\Http\Response::$returnType === 'json'){
-                echo json_encode($res);
-                exit();
-            }elseif(\Base\Http\Response::$returnType === 'html'){
-                echo $res;
-                exit();
-            }
-            return $res;
+
+
+           return $this->response($className,$methodName);
 
         } catch (\Exception $e) {
               $this->error_class($e);
         }
+    }
+
+    public function response($className,$methodName){
+        //对闭包函数进行处理
+        if($className ===null && is_object($methodName)){
+            $methodName();
+            return;
+        }
+        $res = Ioc::make($className, $methodName);
+        if(\Base\Http\Response::$returnType === 'json'){
+            echo json_encode($res);
+            exit();
+        }elseif(\Base\Http\Response::$returnType === 'html'){
+            echo $res;
+            exit();
+        }
+        return $res;
     }
 
     /**

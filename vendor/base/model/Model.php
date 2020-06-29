@@ -140,7 +140,7 @@ class Model implements ArrayAccess
         }
         else
         {
-            if(!$value)
+            if($value === null)
             {
                 throw  new  \Exception(__METHOD__.' value not empty');
             }
@@ -161,7 +161,7 @@ class Model implements ArrayAccess
         }
         else
         {
-            if(!$value)
+            if($value === null)
             {
                 throw new   \Exception(__METHOD__.' value not empty');
             }
@@ -175,7 +175,7 @@ class Model implements ArrayAccess
      * Model::where(条件)->findOne()
      * @return BaseModel|null
      */
-    protected  function findOne($primaryValue)
+    protected  function findOne($primaryValue = null)
     {
         if($primaryValue)
         {
@@ -323,8 +323,16 @@ class Model implements ArrayAccess
     {
         $stmt = static::getDb()->prepare($sqlData['sql']);
         $res = $stmt->execute($sqlData['params']);
+
+        if ($stmt->errorCode() != '00000'){
+            $db_error = $stmt->errorInfo();
+            $db_error_str = "code $db_error[1] message：$db_error[2]";
+            throw new \Exception($db_error_str);
+        }
         return $res;
     }
+
+
 
     public  function exec_sql($sqlData)
     {

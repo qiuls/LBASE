@@ -40,3 +40,15 @@ if(!function_exists('cache_shutdown_error'))
     }
 }
 
+
+if(!function_exists('base_load'))
+{
+    function base_load($path) {
+        if(file_exists($path)){
+            include_once $path;
+        }
+        $base_path = dirname(dirname(\Base\Config\Src\Config::getBaseDir()));
+        $path =  $base_path .DIRECTORY_SEPARATOR.$path;
+        include_once $path;
+    }
+}

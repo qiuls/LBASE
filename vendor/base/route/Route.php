@@ -24,11 +24,15 @@ class  Route
          //获取配置路由
         $validate_urls = $this->getValidateUrls($http_method);
 
-
         if (!array_key_exists($key, $validate_urls)) {
             throw new \Exception($this->Url.'路由不存在');
         }
         $class = $validate_urls[$key];
+        if(is_object($class['method'])){
+            $this->className = null;
+            $this->methodName = $class['method'];
+            return;
+        }
         if (!is_array($class)) {
             $methods = explode('@', $class);
             $this->className = $methods[0];
@@ -198,10 +202,12 @@ class  Route
         if ($data['namespace']) {
             $data['method'] = $data['namespace'] . '\\' . $data['method'];
         }
-
-        $data['method'] = self::$baseController . $data['method'];
+        if (!is_object($data['method'])) {
+            $data['method'] = self::$baseController . $data['method'];
+        }
         if ($data['prefix']) {
             $url = $data['prefix'] . '/' . $url;
+            $url = str_replace('\\','/',$url);
         }
 
         $data['url'] = $url;

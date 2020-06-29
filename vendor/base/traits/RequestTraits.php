@@ -12,6 +12,6 @@ trait RequestTraits
  protected $get = [];
  protected $post = [];
  protected $seesion = null;
- protected $cookie = null;
+ protected $cookie_data = null;
 
 }

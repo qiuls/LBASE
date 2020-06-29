@@ -16,6 +16,8 @@ class Request implements \ArrayAccess
         $this->post = $_POST;
         $this->get = $_GET;
         $this->attributes = array_merge($this->post,$this->get);
+        $this->cookie = isset($_COOKIE) ? $_COOKIE : null;
+
     }
 
     public function post($key = null)
@@ -41,6 +43,14 @@ class Request implements \ArrayAccess
             return $data[$key] ?: null;
         }
         return $data;
+    }
+
+    public function cookie($key = null)
+    {
+        if ($key) {
+            return isset($this->cookie[$key]) ? $this->cookie[$key] : null;
+        }
+        return $this->cookie;
     }
 
     public function getMethod()
