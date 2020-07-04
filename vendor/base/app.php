@@ -15,7 +15,7 @@ class App
          }
          else
          {
-             $config = Base\Config\Src\Config::base();
+             $config = config();
              $this->config = $config;
          }
          if(!$key)
@@ -46,18 +46,37 @@ class App
         register_shutdown_function("cache_shutdown_error");
         try {
             $route = self::getRoute();
-
+            $middleware = $route->getmiddleware();
+            if($middleware){
+                $middleware = array_unique($middleware);
+                foreach ($middleware as $value){
+                   self::handleMiddleware($value);
+               }
+            }
             $className = $route->getclassName();
             $methodName = $route->getmethodName();
-
-
-           return $this->response($className,$methodName);
+            return $this->response($className,$methodName);
 
         } catch (\Exception $e) {
               $this->error_class($e);
         }
     }
 
+
+    public function handleMiddleware($className,$methodName = 'handle'){
+        $res = Ioc::make($className, $methodName);
+        if($res === true){
+            return true;
+        }
+        if(\Base\Http\Response::$returnType === 'json'){
+            echo json_encode($res);
+            exit();
+        }elseif(\Base\Http\Response::$returnType === 'html'){
+            echo $res;
+            exit();
+        }
+
+    }
     public function response($className,$methodName){
         //对闭包函数进行处理
         if($className ===null && is_object($methodName)){

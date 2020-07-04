@@ -13,7 +13,7 @@ class  Route
     public static $delete = [];
     public static $all = [];
     public static $group = [];
-
+    protected $middleware = null;
     public function __construct()
     {
         $url = $_SERVER['REQUEST_URI']; //URL
@@ -21,11 +21,14 @@ class  Route
         $this->Url = $url;
         $key = $this->getUrlKey($url);
 
-         //获取配置路由
+        //获取配置路由
         $validate_urls = $this->getValidateUrls($http_method);
-
-        if (!array_key_exists($key, $validate_urls)) {
-            throw new \Exception($this->Url.'路由不存在');
+        $url_exists = array_key_exists($key, $validate_urls);
+        if(!$url_exists){
+            $key = '/'.$key;
+            if (!array_key_exists($key, $validate_urls)) {
+                throw new \Exception($this->Url.'路由不存在');
+            }
         }
         $class = $validate_urls[$key];
         if(is_object($class['method'])){
@@ -42,6 +45,7 @@ class  Route
         $methods = explode('@', $class['method']);
         $this->className = $methods[0];
         $this->methodName = $methods[1];
+        $this->middleware = $class['middleware'];
     }
     /**
      * 路由分组 分组参数 [namespace  prefix]
@@ -50,6 +54,13 @@ class  Route
      */
     public static function group($param, $closure)
     {
+        if(isset($param['prefix']) && substr($param['prefix'],0,1) === '/'){
+            self::$group = [];
+        }
+        if(isset($param['namespace']) && substr($param['namespace'],0,1) === '/'){
+            self::$group = [];
+        }
+
         self::$group[] = $param;
         if (is_object($closure)) {
             $closure();
@@ -66,6 +77,10 @@ class  Route
      */
     public static function post($url, $method)
     {
+        if(substr($url,0,1) === '/'){
+            self::$group = [];
+            self::$post[$url] = $method;
+        }
         if (!self::$group) {
             self::$post[$url] = $method;
         }
@@ -198,6 +213,7 @@ class  Route
         $data['namespace'] = $group['namespace'];
         $data['prefix'] = $group['prefix'];
         $data['method'] = $method;
+        $data['middleware'] = $group['middleware'] ?? null;
 
         if ($data['namespace']) {
             $data['method'] = $data['namespace'] . '\\' . $data['method'];
@@ -219,6 +235,7 @@ class  Route
         $group = self::$group;
         $data['namespace'] = null;
         $data['prefix'] = null;
+        $data['middleware'] = null;
         if($group)
         {
             foreach($group as $value)
@@ -231,10 +248,15 @@ class  Route
                 {
                     $data['prefix'][] = $value['prefix'];
                 }
+                if(isset($value['middleware']))
+                {
+                    $data['middleware'][] = $value['middleware'];
+                }
             }
             $data['namespace'] = $data['namespace'] ? join('\\',$data['namespace']) : null;
             $data['prefix']    = $data['prefix'] ? join('\\',$data['prefix']) : null;
         }
+
         return $data;
     }
 

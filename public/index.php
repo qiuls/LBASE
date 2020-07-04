@@ -9,8 +9,8 @@
 include_once '../vendor/autoload.php';
 include_once '../vendor/base/autolaod/autoload.php';
 
-include_once '../vendor/base/app.php';
 include_once '../vendor/base/funciotns/functions.php';
+include_once '../vendor/base/app.php';
 include_once '../route/Route.php';
 define('APP_DEBUG',false); //是否开启debug
 define('ROOT_DIR',dirname(__DIR__)); //root path

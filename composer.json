@@ -8,7 +8,8 @@
     ],
     "require": {
         "jdorn/sql-formatter": "^1.2",
-        "symfony/var-dumper": "^5.1"
+        "symfony/var-dumper": "^5.1",
+        "predis/predis": "^1.1"
     },
     "autoload": {
         "files": [
