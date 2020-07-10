@@ -20,7 +20,7 @@ trait BaseModelTraits
     protected $group = null;
     protected $orderBy = null;
     protected $offSet = null;
-    protected $limit  = 1;
+    protected $limit  = 0;
     protected $count   = null;
     protected $exec_sql = null;
     protected $primaryKey = 'id';
@@ -44,7 +44,13 @@ trait BaseModelTraits
      */
     public function toArray()
     {
-        return $this->attributes;
+        $data = $this->attributes;
+        if(isset($data[0]) && is_object($data[0])){
+            foreach ($data as &$v){
+                $v = $v->toArray();
+            }
+        }
+        return $data;
     }
 
     /**

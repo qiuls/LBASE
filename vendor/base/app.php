@@ -62,6 +62,31 @@ class App
         }
     }
 
+    public function runConsole($param){
+        ini_set('date.timezone',$this->config('app_timezone'));
+        error_reporting(0);
+        register_shutdown_function("cache_shutdown_error");
+        try {
+            unset($param[0]);
+            if(count($param) <= 0){
+                dd('参数错误');
+            }
+            $handle_names = $this->config('handle') ?? '';
+            if(!$handle_names){
+                dd('console 配置文件不存在');
+            }
+            sort($param);
+            if(!isset($handle_names[$param[0]])){
+                dd('console handle as name 不存在');
+            }
+
+            $handle_name = $handle_names[$param[0]];
+            Ioc::make($handle_name, 'handle');
+        } catch (\Exception $e) {
+            $this->error_class($e);
+        }
+    }
+
 
     public function handleMiddleware($className,$methodName = 'handle'){
         $res = Ioc::make($className, $methodName);

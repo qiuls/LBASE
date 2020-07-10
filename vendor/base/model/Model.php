@@ -203,14 +203,22 @@ class Model implements ArrayAccess
 
     protected  function findAll()
     {
+
         $sqlData = $this->complexSql($this->orderBy,$this->group,$this->offSet,$this->limit);
         $this->exec_sql($sqlData);
         $this->unsetWhereCondition();
         $stmt = static::getDb()->prepare($sqlData['sql']);
         $rs = $stmt->execute($sqlData['params']);
+        $data = [];
         if ($rs) {
-            $all =$stmt->fetchAll(PDO::FETCH_ASSOC);
-            $this->attributes = $all;
+            $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($all as $value){
+                $model = new self();
+                $model->attributes = $value;
+                $data[] = $model;
+            }
+            $this->attributes = $data;
             return $this;
         }
         return false;
@@ -222,7 +230,7 @@ class Model implements ArrayAccess
         $this->group = null;
         $this->offSet = null;
         $this->orderBy = null;
-        $this->limit = 1;
+        $this->limit = 0;
         $this->where = null;
         $this->where_join_key = null;
         $this->where_key = null;
@@ -338,6 +346,8 @@ class Model implements ArrayAccess
     {
         $this->exec_sql[]= $sqlData;
     }
+
+
 
     /**
      * 返回执行的sql
