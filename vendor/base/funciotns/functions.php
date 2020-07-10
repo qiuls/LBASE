@@ -40,3 +40,46 @@ if(!function_exists('cache_shutdown_error'))
     }
 }
 
+
+if(!function_exists('base_load'))
+{
+    function base_load($path) {
+        if(file_exists($path)){
+            include_once $path;
+        }
+        $base_path = dirname(dirname(\Base\Config\Src\Config::getBaseDir()));
+        $path =  $base_path .DIRECTORY_SEPARATOR.$path;
+        include_once $path;
+    }
+}
+
+
+if (!function_exists('config')) {
+    /**
+     * 配置文件
+     * @param  [type]  $dir  [description]
+     * @param  integer $mode [description]
+     * @return [type]        [description]
+     */
+    function config($keys = null)
+    {
+        $key = null;
+        if(strpos($keys,'.') !== false){
+        list($config_name,$key) = explode('.',$keys);
+        }else{
+            $config_name = $keys;
+        }
+        $app_config = \Base\Config\Src\Config::app($config_name);
+        if($app_config){
+           if($key) return $app_config[$key] ?? '';
+           if($config_name) return $app_config ?? '';
+       }
+       $base_config = Base\Config\Src\Config::base($config_name);
+        if($base_config && $key){
+            if($key) return $base_config[$key] ?? '';
+            if($base_config) return $base_config ?? '';
+        }
+
+        return array_merge($base_config,$app_config);
+    }
+}

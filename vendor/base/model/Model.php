@@ -140,7 +140,7 @@ class Model implements ArrayAccess
         }
         else
         {
-            if(!$value)
+            if($value === null)
             {
                 throw  new  \Exception(__METHOD__.' value not empty');
             }
@@ -161,7 +161,7 @@ class Model implements ArrayAccess
         }
         else
         {
-            if(!$value)
+            if($value === null)
             {
                 throw new   \Exception(__METHOD__.' value not empty');
             }
@@ -175,7 +175,7 @@ class Model implements ArrayAccess
      * Model::where(条件)->findOne()
      * @return BaseModel|null
      */
-    protected  function findOne($primaryValue)
+    protected  function findOne($primaryValue = null)
     {
         if($primaryValue)
         {
@@ -203,14 +203,22 @@ class Model implements ArrayAccess
 
     protected  function findAll()
     {
+
         $sqlData = $this->complexSql($this->orderBy,$this->group,$this->offSet,$this->limit);
         $this->exec_sql($sqlData);
         $this->unsetWhereCondition();
         $stmt = static::getDb()->prepare($sqlData['sql']);
         $rs = $stmt->execute($sqlData['params']);
+        $data = [];
         if ($rs) {
-            $all =$stmt->fetchAll(PDO::FETCH_ASSOC);
-            $this->attributes = $all;
+            $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($all as $value){
+                $model = new self();
+                $model->attributes = $value;
+                $data[] = $model;
+            }
+            $this->attributes = $data;
             return $this;
         }
         return false;
@@ -222,7 +230,7 @@ class Model implements ArrayAccess
         $this->group = null;
         $this->offSet = null;
         $this->orderBy = null;
-        $this->limit = 1;
+        $this->limit = 0;
         $this->where = null;
         $this->where_join_key = null;
         $this->where_key = null;
@@ -323,13 +331,23 @@ class Model implements ArrayAccess
     {
         $stmt = static::getDb()->prepare($sqlData['sql']);
         $res = $stmt->execute($sqlData['params']);
+
+        if ($stmt->errorCode() != '00000'){
+            $db_error = $stmt->errorInfo();
+            $db_error_str = "code $db_error[1] message：$db_error[2]";
+            throw new \Exception($db_error_str);
+        }
         return $res;
     }
+
+
 
     public  function exec_sql($sqlData)
     {
         $this->exec_sql[]= $sqlData;
     }
+
+
 
     /**
      * 返回执行的sql
