@@ -83,3 +83,25 @@ if (!function_exists('config')) {
         return array_merge($base_config,$app_config);
     }
 }
+
+
+if (!function_exists('env')) {
+    /**
+     * 配置文件
+     * @param  [type]  $dir  [description]
+     * @param  integer $mode [description]
+     * @return [type]        [description]
+     */
+    function env($key = null)
+    {
+        $env_name = ROOT_DIR.'/.env';
+        if(!is_file($env_name)){
+            return false;
+        }
+         $env = parse_ini_file($env_name, true);    //解析env文件,name = PHP_KEY
+        if($key && isset($env[$key])){
+            return $env[$key];
+        }
+        return $env;
+    }
+}
