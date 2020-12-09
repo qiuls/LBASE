@@ -14,6 +14,7 @@ include_once 'vendor/base/app.php';
 include_once 'route/Route.php';
 define('APP_DEBUG',false); //是否开启debug
 define('ROOT_DIR',__DIR__); //根目录 path
+define('APP_NAME','LBASE_tools');
 /**
  * 启动
  */
