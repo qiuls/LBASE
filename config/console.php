@@ -2,7 +2,7 @@
 
 return [
     'handle' => [
-        'handle_for_joke' => \App\Front\Console\Commands\ForJokeToEs::class,
+        'handle_for_joke' => \App\Front\Console\Commands\ForJokeToSync::class,
         'test' => \App\Front\Console\Commands\Test::class,
     ],
 ];

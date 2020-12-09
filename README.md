@@ -143,6 +143,14 @@ public function index(Request $request)
        $query = RequestLog::query();
        $data =$query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->findOne();
        
+       查询多行
+        $query = RequestLog::query();
+        $data =$query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->findAll();
+        
+       统计查询 count 或者先where 然后在count 在查询数据 findOne or findAll
+       
+        $count = $query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->count();      
+       
        获取执行的sql
        $model::query();
        $model->getSql();

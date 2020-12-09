@@ -11,6 +11,7 @@ trait RequestTraits
  use ArrayObjectAccess;
  protected $get = [];
  protected $post = [];
+ protected static $console_param = [];
  protected $seesion = null;
  protected $cookie_data = null;
 

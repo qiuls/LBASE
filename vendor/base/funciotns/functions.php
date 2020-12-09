@@ -54,6 +54,28 @@ if(!function_exists('base_load'))
 }
 
 
+if (!function_exists('env')) {
+    /**
+     * 配置文件
+     * @param  [type]  $dir  [description]
+     * @param  integer $mode [description]
+     * @return [type]        [description]
+     */
+    function env($key = null,$default = null)
+    {
+        $env_name = ROOT_DIR.'/.env';
+        if(!is_file($env_name)){
+            return null;
+        }
+        $env = parse_ini_file($env_name, true);    //解析env文件,name = PHP_KEY
+        if($key && isset($env[$key])){
+            return $env[$key] ?: null;
+        }
+        return $default;
+    }
+}
+
+
 if (!function_exists('config')) {
     /**
      * 配置文件
@@ -69,12 +91,13 @@ if (!function_exists('config')) {
         }else{
             $config_name = $keys;
         }
+
         $app_config = \Base\Config\Src\Config::app($config_name);
         if($app_config){
            if($key) return $app_config[$key] ?? '';
            if($config_name) return $app_config ?? '';
        }
-       $base_config = Base\Config\Src\Config::base($config_name);
+        $base_config = Base\Config\Src\Config::base($config_name);
         if($base_config && $key){
             if($key) return $base_config[$key] ?? '';
             if($base_config) return $base_config ?? '';
@@ -85,23 +108,3 @@ if (!function_exists('config')) {
 }
 
 
-if (!function_exists('env')) {
-    /**
-     * 配置文件
-     * @param  [type]  $dir  [description]
-     * @param  integer $mode [description]
-     * @return [type]        [description]
-     */
-    function env($key = null)
-    {
-        $env_name = ROOT_DIR.'/.env';
-        if(!is_file($env_name)){
-            return false;
-        }
-         $env = parse_ini_file($env_name, true);    //解析env文件,name = PHP_KEY
-        if($key && isset($env[$key])){
-            return $env[$key];
-        }
-        return $env;
-    }
-}

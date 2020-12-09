@@ -53,7 +53,10 @@ class Config
                     continue;
                 }
                 $config_c = include_once $file;
-                $config = array_merge($config,$config_c);
+                $file_key = substr($file,0,strpos($file,'.'));
+                $tmp = [];
+                $tmp[$file_key] = $config_c;
+                $config = array_merge($config,$tmp);
                 unset($config_c);
             }
             self::$app_config = $config;
@@ -99,7 +102,11 @@ class Config
                     continue;
                 }
                 $config_c = include_once $file;
-                $config = array_merge($config,$config_c);
+                $file_keys = explode(DIRECTORY_SEPARATOR,substr($file,0,strpos($file,'.')));
+                $file_key = end($file_keys);
+                $tmp = [];
+                $tmp[$file_key] = $config_c;
+                $config = array_merge($config,$tmp);
                 unset($config_c);
             }
             self::$base_config = $config;

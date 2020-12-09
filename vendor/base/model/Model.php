@@ -65,7 +65,7 @@ class Model implements ArrayAccess
             $password = $config['password'];
             try {
                 static::$pdo = new PDO("mysql:host=$host;dbname=$database",$username,$password);
-                static::$pdo->exec("set names 'utf8'");
+                static::$pdo->exec("SET NAMES utf8mb4");
                 return static::$pdo;
             }catch (\PDOException $e){
                 Log::message('PDO 连接错误'.$e->getMessage() .'line '. __LINE__. 'file__'.__FILE__);
@@ -178,7 +178,6 @@ class Model implements ArrayAccess
         {
             $this->where($this->primaryKey,$primaryValue);
         }
-
         $sqlData = $this->complexSql($this->orderBy,$this->group,$this->offSet);
         $sqlData['sql'] .= ' limit 1';
         $this->exec_sql($sqlData);
@@ -200,9 +199,9 @@ class Model implements ArrayAccess
 
     protected  function findAll()
     {
-
         $sqlData = $this->complexSql($this->orderBy,$this->group,$this->offSet,$this->limit);
         $this->exec_sql($sqlData);
+
         $this->unsetWhereCondition();
         $stmt = static::getDb()->prepare($sqlData['sql']);
         $rs = $stmt->execute($sqlData['params']);
@@ -335,6 +334,21 @@ class Model implements ArrayAccess
             throw new \Exception($db_error_str);
         }
         return $res;
+    }
+
+    protected function count(){
+
+        $sqlData = $this->countComplexSql($this->orderBy,$this->group);
+
+        $this->exec_sql($sqlData);
+        $stmt = static::getDb()->prepare($sqlData['sql']);
+        $rs = $stmt->execute($sqlData['params']);
+        if ($rs) {
+            $all = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return isset($all[0]["count({$this->select})"]) ? intval($all[0]["count({$this->select})"]) : 0;
+        }
+
+        return 0;
     }
 
 
