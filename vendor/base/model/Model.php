@@ -30,7 +30,7 @@ class Model implements ArrayAccess
 
     public function __construct()
     {
-        if(empty(self::getDb())){
+        if(!self::getDb()){
             $message = 'get db 链接失败 ' . __CLASS__;
             throw new \Exception($message);
         }
@@ -44,12 +44,11 @@ class Model implements ArrayAccess
     {
         if(!self::$config)
         {
-            $config = Config::base('database');
+            $config = config('database');
             $default = $config['default'];
             $default_config = $config['connections'][$default];
             self::$config = $default_config;
         }
-
         return self::$config;
     }
     /**
@@ -67,10 +66,10 @@ class Model implements ArrayAccess
             try {
                 static::$pdo = new PDO("mysql:host=$host;dbname=$database",$username,$password);
                 static::$pdo->exec("set names 'utf8'");
+                return static::$pdo;
             }catch (\PDOException $e){
-                Log::message('\'PDO 连接错误\'.$e->getMessage()');
-//                throw  new \Exception('PDO 连接错误'.$e->getMessage());
-//                die( 'PDO 连接错误'.$e->getMessage());
+                Log::message('PDO 连接错误'.$e->getMessage() .'line '. __LINE__. 'file__'.__FILE__);
+                throw  new \Exception('PDO 连接错误'.$e->getMessage());
             }
         }
         return static::$pdo;
@@ -146,8 +145,6 @@ class Model implements ArrayAccess
             }
             $this->where[] = [$name,$compare,$value];
         }
-
-
         return $this;
     }
 
