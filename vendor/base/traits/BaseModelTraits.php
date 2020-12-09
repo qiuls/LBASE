@@ -6,6 +6,8 @@
  * Time: 16:51
  */
 namespace Base\Traits;
+use Ioc;
+
 trait BaseModelTraits
 {
     use ArrayObjectAccess;
@@ -62,6 +64,12 @@ trait BaseModelTraits
     public static function __callStatic($name,$arguments)
     {
         $ob = self::query();
+
+        if (!method_exists($ob, $name)) {
+            $message = 'You can\'t access undefined methods to class ' . __CLASS__.' function:'.$name;
+            throw new \Exception($message);
+        }
+
         return $ob->$name(...$arguments);
     }
 
@@ -73,7 +81,13 @@ trait BaseModelTraits
      */
     public function __call($name, $arguments)
     {
-        return $this->$name(...$arguments);
+
+           if (!method_exists($this, $name)) {
+                $message = 'You can\'t access undefined methods to class ' . __CLASS__ .' function:'.$name;
+                throw new \Exception($message);
+            }
+            return $this->$name(...$arguments);
+
     }
 
 

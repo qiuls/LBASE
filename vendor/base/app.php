@@ -2,28 +2,24 @@
 
 class App
 {
-    public $config  = null;
+    public $config = null;
 
     /**
      * 获取配置文件
      */
-     public function config($key = null)
-     {
-         if($this->config)
-         {
-             $config = $this->config;
-         }
-         else
-         {
-             $config = config();
-             $this->config = $config;
-         }
-         if(!$key)
-         {
-             return $config;
-         }
-         return isset($config[$key]) ? $config[$key] : null;
-     }
+    public function config($key = null)
+    {
+        if ($this->config) {
+            $config = $this->config;
+        } else {
+            $config = config();
+            $this->config = $config;
+        }
+        if (!$key) {
+            return $config;
+        }
+        return isset($config[$key]) ? $config[$key] : null;
+    }
 
     /**
      * 获取路由
@@ -41,46 +37,83 @@ class App
      */
     public function run()
     {
-        ini_set('date.timezone',$this->config('app_timezone'));
+        //自定义时间
+        ini_set('date.timezone', $this->config('app_timezone'));
         error_reporting(0);
         register_shutdown_function("cache_shutdown_error");
+
         try {
             $route = self::getRoute();
-            $middleware = $route->getmiddleware();
-            if($middleware){
-                $middleware = array_unique($middleware);
-                foreach ($middleware as $value){
-                   self::handleMiddleware($value);
-               }
-            }
-            $className = $route->getclassName();
-            $methodName = $route->getmethodName();
-            return $this->response($className,$methodName);
 
+            $middleware = $route->getmiddleware();
+
+            //处理中间件
+            if ($middleware) {
+                $middleware = array_unique($middleware);
+                foreach ($middleware as $value) {
+                    self::handleMiddleware($value);
+                }
+            }
+
+            $className = $route->getclassName();
+
+            $methodName = $route->getmethodName();
+
+            $res = $this->response($className, $methodName);
+
+            exit($res);
         } catch (\Exception $e) {
-              $this->error_class($e);
+            $this->error_class($e);
         }
     }
 
-    public function runConsole($param){
-        ini_set('date.timezone',$this->config('app_timezone'));
+
+    /**
+     * 命令行启动
+     * @param $param
+     * ^ array:3 [
+     * 0 => "artisan.php"
+     * 1 => "handle_for_joke"
+     * 2 => "a:1"
+     * ]
+     */
+    public function runConsole($param)
+    {
+        //自定义时间
+        ini_set('date.timezone', $this->config('app_timezone'));
         error_reporting(0);
         register_shutdown_function("cache_shutdown_error");
         try {
             unset($param[0]);
-            if(count($param) <= 0){
+            if (count($param) <= 0) {
                 dd('参数错误');
             }
+            //获取配置的handle名
             $handle_names = $this->config('handle') ?? '';
-            if(!$handle_names){
+            if (!$handle_names) {
                 dd('console 配置文件不存在');
             }
-            sort($param);
-            if(!isset($handle_names[$param[0]])){
+            //处理路由
+            $handle_name = $handle_names[$param[1]] ?? '';
+            if (!$handle_name) {
                 dd('console handle as name 不存在');
             }
+            unset($param[1]);
 
-            $handle_name = $handle_names[$param[0]];
+            //获取参数
+            $data_param = [];
+            if ($param) {
+                foreach ($param as $item) {
+                    //参数为key:value形式
+                    $line_param = explode(':', $item);
+                    if (!$line_param && count($line_param) < 2) {
+                        continue;
+                    }
+                    list($key, $val) = $line_param;
+                    $data_param[$key] = $val;
+                }
+            }
+            \Base\Http\Request::setConsole($data_param);
             Ioc::make($handle_name, 'handle');
         } catch (\Exception $e) {
             $this->error_class($e);
@@ -88,33 +121,45 @@ class App
     }
 
 
-    public function handleMiddleware($className,$methodName = 'handle'){
+    /**
+     * 执行web中间件
+     * @param $className
+     * @param string $methodName
+     * @return bool
+     */
+    public function handleMiddleware($className, $methodName = 'handle')
+    {
         $res = Ioc::make($className, $methodName);
-        if($res === true){
+        if ($res === true) {
             return true;
         }
-        if(\Base\Http\Response::$returnType === 'json'){
+        if (\Base\Http\Response::$returnType === 'json') {
             echo json_encode($res);
             exit();
-        }elseif(\Base\Http\Response::$returnType === 'html'){
+        } elseif (\Base\Http\Response::$returnType === 'html') {
             echo $res;
             exit();
         }
-
     }
-    public function response($className,$methodName){
+
+    /**
+     * 返回格式
+     * @param $className
+     * @param $methodName
+     */
+    public function response($className, $methodName)
+    {
         //对闭包函数进行处理
-        if($className ===null && is_object($methodName)){
+        if ($className === null && is_object($methodName)) {
             $methodName();
-            return;
+            return null;
         }
         $res = Ioc::make($className, $methodName);
-        if(\Base\Http\Response::$returnType === 'json'){
-            echo json_encode($res);
-            exit();
-        }elseif(\Base\Http\Response::$returnType === 'html'){
-            echo $res;
-            exit();
+        if (\Base\Http\Response::$returnType === 'json') {
+            return json_encode($res);
+
+        } elseif (\Base\Http\Response::$returnType === 'html') {
+            return $res;
         }
         return $res;
     }
@@ -128,16 +173,13 @@ class App
     public function __call($name, $arguments)
     {
         try {
-            if (!method_exists('Ioc', $name))
-            {
+            if (!method_exists('Ioc', $name)) {
                 $message = 'You can\'t access undefined methods to class ' . __CLASS__;
 
                 throw new \Exception($message);
             }
             return Ioc::$name(...$arguments);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $this->error_class($e);
         }
     }
@@ -151,7 +193,7 @@ class App
         $message = $e->getMessage();
         $file = $e->getFile();
         $line = $e->getLine();
-        $this->errorMessage($message,$file,$line);
+        $this->errorMessage($message, $file, $line);
     }
 
 
@@ -160,9 +202,9 @@ class App
      * @param $file
      * @param $line
      */
-    public function errorMessage($message,$file,$line)
+    public function errorMessage($message, $file, $line)
     {
-        if (APP_DEBUG) {
+        if (config('app.env') == 'live') {
             $str = <<<HTML
   message : {$message}\r\n
   file : {$file}\r\n

@@ -171,9 +171,20 @@ trait CURDTraits
         return $this->getSqlData($sql);
     }
 
+    /**
+     * 获取查询sql
+     * @return mixed
+     */
+    public function getCountSelctSql()
+    {
+        $sql = "select count({$this->select}) from " . static::tableName();
+        return $this->getSqlData($sql);
+    }
+
     public function complexSql($order,$group,$offSet,$limit = null)
     {
         $data = $this->getSelctSql();
+
         if($group)
         {
             $data['sql'] .=" group by {$group}";
@@ -182,13 +193,27 @@ trait CURDTraits
         {
             $data['sql'] .=" order by $order";
         }
-        if($offSet && $limit)
-        {
-            $data['sql'] .= " limit {$offSet},{$limit}";
-        }
         if($limit)
         {
             $data['sql'] .=  " limit {$limit}";
+        }
+        if($offSet !== null)
+        {
+            $data['sql'] .= " offset {$offSet}";
+        }
+        return $data;
+    }
+
+
+    public function countComplexSql($order,$group){
+        $data = $this->getCountSelctSql();
+        if($group)
+        {
+            $data['sql'] .=" group by {$group}";
+        }
+        if($order)
+        {
+            $data['sql'] .=" order by $order";
         }
         return $data;
     }

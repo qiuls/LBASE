@@ -143,6 +143,14 @@ public function index(Request $request)
        $query = RequestLog::query();
        $data =$query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->findOne();
        
+       查询多行
+        $query = RequestLog::query();
+        $data =$query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->findAll();
+        
+       统计查询 count 或者先where 然后在count 在查询数据 findOne or findAll
+       
+        $count = $query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->count();      
+       
        获取执行的sql
        $model::query();
        $model->getSql();
@@ -158,7 +166,9 @@ public function index(Request $request)
  $query = "SELECT * FROM `contacts` LIMIT 0, 1000";
  echo SqlFormatter::format($query);
 ```
-   ##新增predis 链接
+
+ ##新增predis 链接
+ 
    ```
     'redis' => [
            'client' => 'predis',
@@ -173,4 +183,17 @@ public function index(Request $request)
       使用
      Predis::keys()        
    ```
-   
+   ###新增env方法
+    ```
+    在根目录新建.env文件
+    
+    APP_ENV=local
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=json
+    DB_USERNAME=root
+    DB_PASSWORD=root
+    系统调用
+    env('APP_ENV') 不存在返回false 存在为local
+     ```

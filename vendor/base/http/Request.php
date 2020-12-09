@@ -73,4 +73,26 @@ class Request implements \ArrayAccess
             return $ip;
     }
 
+    /**
+     * 命令行参数
+     * @param null $key
+     * @return array|null
+     */
+    public static  function console($key = null)
+    {
+        if ($key) {
+            return isset(self::$console_param[$key]) ? self::$console_param[$key] : null;
+        }
+        return self::$console_param;
+    }
+
+
+    public static function setConsole($param){
+        if(self::$console_param){
+            $param = array_merge(self::$console_param,$param);
+        }
+        self::$console_param = $param;
+        return true;
+    }
+
 }

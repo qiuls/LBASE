@@ -15,6 +15,7 @@ class PredisClient
     public function __construct()
     {
         $redis_conf = config('database.redis');
+        $redis_conf = $redis_conf['default'];
         $this->redis = $redis = new Client($redis_conf);
     }
 
