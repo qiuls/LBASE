@@ -16,7 +16,7 @@ class PredisClient
     {
         $redis_conf = config('database.redis');
         $redis_conf = $redis_conf['default'];
-        $this->redis = $redis = new Client($redis_conf);
+        $this->redis = new Client($redis_conf);
     }
 
     public function set($key,$value,$second = 0){
@@ -70,10 +70,17 @@ class PredisClient
     public function __call($name, $arguments)
     {
         try{
-            return $this->redis->$name($arguments);
+            return $this->redis->$name(...$arguments);
         }catch (\Exception $e){
             lapp()->error_class($e);
             return false;
         }
+    }
+
+    /**
+     * 递减
+     */
+    public function exists($key){
+        return $this->redis->exists($key);
     }
 }

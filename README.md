@@ -143,14 +143,6 @@ public function index(Request $request)
        $query = RequestLog::query();
        $data =$query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->findOne();
        
-       查询多行
-        $query = RequestLog::query();
-        $data =$query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->findAll();
-        
-       统计查询 count 或者先where 然后在count 在查询数据 findOne or findAll
-       
-        $count = $query->where('created_at',$s_date,'>=')->where('created_at',$e_date,'<=')->count();      
-       
        获取执行的sql
        $model::query();
        $model->getSql();
@@ -196,4 +188,30 @@ public function index(Request $request)
     DB_PASSWORD=root
     系统调用
     env('APP_ENV') 不存在返回false 存在为local
+     ```
+     
+  ###新增队列处理
+     ```
+     app/项目名/job 为任务处理
+      /**
+          * 默认处理方法
+          */
+         public function handle(){
+             \Base\Facade\Log::message(__METHOD__ .' '.json_encode($this->data));
+             return true;
+         }
+         
+         启动
+         php artisan.php queue:init 初次使用调用 创建failed_jobs数据表
+          
+         php artisan.php queue:work 执行队列内所有的执行完毕关闭
+         php artisan.php queue:listen 执行队列监听 
+         
+         php artisan.php queue:stop  //平滑关闭
+         
+          php artisan.php queue:restart 平滑重启 需要借助supervisor进行守护重启
+          
+          php artisan.php queue:failWork 执行错误的队列任务
+          
+         
      ```

@@ -53,7 +53,8 @@ class Config
                     continue;
                 }
                 $config_c = include_once $file;
-                $file_key = substr($file,0,strpos($file,'.'));
+                $file_keys = explode(DIRECTORY_SEPARATOR,substr($file,0,strpos($file,'.')));
+                $file_key = end($file_keys);
                 $tmp = [];
                 $tmp[$file_key] = $config_c;
                 $config = array_merge($config,$tmp);

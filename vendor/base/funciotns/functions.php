@@ -85,26 +85,75 @@ if (!function_exists('config')) {
      */
     function config($keys = null)
     {
-        $key = null;
+        $config_name = null;
         if(strpos($keys,'.') !== false){
-        list($config_name,$key) = explode('.',$keys);
-        }else{
-            $config_name = $keys;
+        list($config_name,$keys) = explode('.',$keys);
         }
 
-        $app_config = \Base\Config\Src\Config::app($config_name);
-        if($app_config){
-           if($key) return $app_config[$key] ?? '';
-           if($config_name) return $app_config ?? '';
-       }
-        $base_config = Base\Config\Src\Config::base($config_name);
-        if($base_config && $key){
-            if($key) return $base_config[$key] ?? '';
-            if($base_config) return $base_config ?? '';
-        }
+        $app_config = \Base\Config\Src\Config::app(null);
 
-        return array_merge($base_config,$app_config);
+        $base_config = Base\Config\Src\Config::base(null);
+
+        foreach ($base_config as $key=> $item){
+            if(isset($app_config[$key])){
+                $app_config[$key] = array_merge($base_config[$key],$app_config[$key]);
+                continue;
+            }
+            $app_config[$key] = $base_config[$key];
+        }
+        if($keys && $config_name){
+            return $app_config[$config_name][$keys] ?? null;
+        }
+        if($keys) return $app_config[$keys] ?? null;
+        
+        return $app_config;
     }
 }
 
+
+if (!function_exists('from10_to62')) {
+
+    /**
+     * 十进制数转换成62进制
+     *
+     * @param integer $num
+     * @return string
+     */
+    function from10_to62($num) {
+        $to = 62;
+        $dict = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $ret = '';
+        do {
+            $ret = $dict[bcmod($num, $to)] . $ret;
+            $num = bcdiv($num, $to);
+        } while ($num > 0);
+        return $ret;
+
+    }
+
+}
+
+if (!function_exists('from62_to10')) {
+
+    /**
+     * 62进制数转换成十进制数
+     *
+     * @param string $num
+     * @return string
+     */
+    function from62_to10($num) {
+        $from = 62;
+        $num = strval($num);
+        $dict = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $len = strlen($num);
+        $dec = 0;
+        for($i = 0; $i < $len; $i++) {
+            $pos = strpos($dict, $num[$i]);
+            $dec = bcadd(bcmul(bcpow($from, $len - $i - 1), $pos), $dec);
+        }
+        return $dec;
+
+
+    }
+}
 

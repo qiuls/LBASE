@@ -9,16 +9,7 @@ class App
      */
     public function config($key = null)
     {
-        if ($this->config) {
-            $config = $this->config;
-        } else {
-            $config = config();
-            $this->config = $config;
-        }
-        if (!$key) {
-            return $config;
-        }
-        return isset($config[$key]) ? $config[$key] : null;
+        return config($key);
     }
 
     /**
@@ -38,7 +29,8 @@ class App
     public function run()
     {
         //自定义时间
-        ini_set('date.timezone', $this->config('app_timezone'));
+        ini_set('date.timezone', config('app.app_timezone'));
+
         error_reporting(0);
         register_shutdown_function("cache_shutdown_error");
 
@@ -80,8 +72,9 @@ class App
     public function runConsole($param)
     {
         //自定义时间
-        ini_set('date.timezone', $this->config('app_timezone'));
+        ini_set('date.timezone', config('app.app_timezone'));
         error_reporting(0);
+
         register_shutdown_function("cache_shutdown_error");
         try {
             unset($param[0]);
@@ -89,12 +82,17 @@ class App
                 dd('参数错误');
             }
             //获取配置的handle名
-            $handle_names = $this->config('handle') ?? '';
+            $app_handle =   config('console.handle');
+            $app_handle = $app_handle ?: [];
+            $base_handle = config('console.base_queue') ?? [];
+
+            $handle_names = array_merge($app_handle,$base_handle);
             if (!$handle_names) {
                 dd('console 配置文件不存在');
             }
             //处理路由
-            $handle_name = $handle_names[$param[1]] ?? '';
+            $command = $param[1];
+            $handle_name = $handle_names[$command] ?? '';
             if (!$handle_name) {
                 dd('console handle as name 不存在');
             }
@@ -114,7 +112,11 @@ class App
                 }
             }
             \Base\Http\Request::setConsole($data_param);
-            Ioc::make($handle_name, 'handle');
+            if(isset($base_handle[$command])){
+                list($class_name,$method)= explode(':',$command);
+                return Ioc::make($handle_name, $method);
+            }
+            return Ioc::make($handle_name, 'handle');
         } catch (\Exception $e) {
             $this->error_class($e);
         }
@@ -174,14 +176,21 @@ class App
     {
         try {
             if (!method_exists('Ioc', $name)) {
-                $message = 'You can\'t access undefined methods to class ' . __CLASS__;
-
+                $message = 'You can\'t access undefined methods to class ' . __CLASS__  .' name = '.$name;
+                if(method_exists($this,$name)){
+                     return $this->$name(...$arguments);
+                }
                 throw new \Exception($message);
             }
+
             return Ioc::$name(...$arguments);
         } catch (\Exception $e) {
             $this->error_class($e);
         }
+    }
+
+    public function make($className, $methodName, $params = []){
+        return Ioc::make($className, $methodName, $params);
     }
 
     /**
