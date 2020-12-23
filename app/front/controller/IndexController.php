@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Front\Controller;
+use App\Front\Job\TestJob;
 use Base\Controller\BaseController;
 use App\Front\Model\RequestLog;
+use Base\Facade\QPush;
 use Base\Http\Request;
 use Base\Facade\Log;
+use Base\Queue\Push;
 use Base\Route\Route;
 
 class IndexController extends BaseController
@@ -24,6 +27,7 @@ class IndexController extends BaseController
 //      var_dump('adsav');
       Log::message('我是lbase');
       echo 'wecome to in lbase';
+//      dd(QPush::push(TestJob::class,['abc' => '1']));
 //     // var_dump($request->get());
 //     // require 'a.php';
 //    $model = User::where([['id','=',1],['id','=',2]],'or')->findAll();

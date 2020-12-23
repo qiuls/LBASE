@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/elasticsearch/elasticsearch" />
+      <path value="$PROJECT_DIR$/vendor/booster/jsmin" />
+      <path value="$PROJECT_DIR$/vendor/booster/htaccess" />
+      <path value="$PROJECT_DIR$/vendor/base/model" />
+      <path value="$PROJECT_DIR$/vendor/base/facade" />
+      <path value="$PROJECT_DIR$/vendor/base/console" />
+      <path value="$PROJECT_DIR$/vendor/base/tool" />
+      <path value="$PROJECT_DIR$/vendor/booster/yuicompressor" />
+      <path value="$PROJECT_DIR$/vendor/booster/compiler" />
+      <path value="$PROJECT_DIR$/vendor/base/route" />
+      <path value="$PROJECT_DIR$/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/vendor/base/traits" />
+      <path value="$PROJECT_DIR$/vendor/ezimuel/guzzlestreams" />
+      <path value="$PROJECT_DIR$/vendor/ezimuel/ringphp" />
+      <path value="$PROJECT_DIR$/vendor/base/config" />
+      <path value="$PROJECT_DIR$/vendor/jdorn/sql-formatter" />
+      <path value="$PROJECT_DIR$/vendor/base/interfaces" />
+      <path value="$PROJECT_DIR$/vendor/base/middleware" />
+      <path value="$PROJECT_DIR$/vendor/base/queue" />
+      <path value="$PROJECT_DIR$/vendor/base/job" />
+      <path value="$PROJECT_DIR$/vendor/base/controller" />
+      <path value="$PROJECT_DIR$/vendor/predis/predis" />
+      <path value="$PROJECT_DIR$/vendor/react/promise" />
+      <path value="$PROJECT_DIR$/vendor/base/http" />
+      <path value="$PROJECT_DIR$/vendor/base/funciotns" />
+      <path value="$PROJECT_DIR$/vendor/base/autolaod" />
+      <path value="$PROJECT_DIR$/vendor/booster/booster_cache" />
+    </include_path>
+  </component>
+</project>
