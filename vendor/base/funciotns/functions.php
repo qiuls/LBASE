@@ -157,3 +157,12 @@ if (!function_exists('from62_to10')) {
     }
 }
 
+if(!function_exists('redirect')){
+
+    function redirect($url)
+    {
+        header("Location: $url");
+        exit();
+    }
+}
+

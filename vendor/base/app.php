@@ -35,6 +35,7 @@ class App
         register_shutdown_function("cache_shutdown_error");
 
         try {
+
             $route = self::getRoute();
 
             $middleware = $route->getmiddleware();
